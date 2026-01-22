@@ -10,9 +10,11 @@ import (
 func SetupRoutes() {
 	// Initialize storage
 	produkStorage := storage.NewProdukStorage()
+	categoryStorage := storage.NewCategoryStorage()
 
 	// Initialize handlers
 	produkHandler := handlers.NewProdukHandler(produkStorage)
+	categoryHandler := handlers.NewCategoryHandler(categoryStorage)
 	healthHandler := handlers.NewHealthHandler()
 
 	// Product routes with specific ID
@@ -36,6 +38,32 @@ func SetupRoutes() {
 			produkHandler.GetAllProduk(w, r)
 		case "POST":
 			produkHandler.CreateProduk(w, r)
+		default:
+			http.Error(w, "Method not allowed boy", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Category routes with specific ID
+	http.HandleFunc("/api/categories/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			categoryHandler.GetCategoryByID(w, r)
+		case "PUT":
+			categoryHandler.UpdateCategoryByID(w, r)
+		case "DELETE":
+			categoryHandler.DeleteCategoryByID(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Category routes for collection
+	http.HandleFunc("/api/categories", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			categoryHandler.GetAllCategory(w, r)
+		case "POST":
+			categoryHandler.CreateCategory(w, r)
 		default:
 			http.Error(w, "Method not allowed boy", http.StatusMethodNotAllowed)
 		}
