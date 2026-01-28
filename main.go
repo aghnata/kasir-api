@@ -3,9 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"kasir-api/database"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/viper" //untuk baca env
 )
 
 type Produk struct {
@@ -22,19 +27,6 @@ var produk = []Produk{
 }
 
 func getProdukByID(w http.ResponseWriter, r *http.Request) {
-	// //GET localhost:8080/api/produk/{id} (versi sederhana)
-	// http.HandleFunc("/api/produk/", func(w http.ResponseWriter, r *http.Request) {
-	// 	id := r.URL.Path[len("/api/produk/"):]
-	// 	for _, p := range produk {
-	// 		if fmt.Sprintf("%d", p.ID) == id {
-	// 			w.Header().Set("Content-Type", "application/json")
-	// 			json.NewEncoder(w).Encode(p)
-	// 			return
-	// 		}
-	// 	}
-	// 	http.Error(w, "Produk tidak ditemukan", http.StatusNotFound)
-	// })
-
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -95,7 +87,46 @@ func deleteProdukByID(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Produk tidak ditemukan", http.StatusNotFound)
 }
 
+type Config struct {
+	Port   string `mapstructure:"PORT"`
+	DbConn string `mapstructure:"DB_CONN"`
+}
+
 func main() {
+	// viper.SetConfigFile(".env")
+	// err := viper.ReadInConfig()
+	// if err != nil {
+	// 	fmt.Println("Error reading config file", err)
+	// 	return
+	// }
+
+	// var config Config
+	// err = viper.Unmarshal(&config)
+	// if err != nil {
+	// 	fmt.Println("Error unmarshaling config", err)
+	// 	return
+	// }
+
+	viper.AutomaticEnv() //baca dari env secara otomatis
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	if _, err := os.Stat(".env"); err == nil {
+		viper.SetConfigFile(".env")
+		_ = viper.ReadInConfig()
+	}
+
+	config := Config{
+		Port:   viper.GetString("PORT"),
+		DbConn: viper.GetString("DB_CONN"),
+	}
+
+	//setup db
+	db, err := database.InitDB(config.DbConn)
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
+	defer db.Close()
+
 	//GET localhost:8080/api/produk/{id}
 	//PUT localhost:8080/api/produk/{id}
 	//DELETE localhost:8080/api/produk/{id}
@@ -137,10 +168,10 @@ func main() {
 			"message": "API Running",
 		})
 	})
-	fmt.Println("Starting server on :8080")
+	fmt.Println("Starting server on :" + config.Port)
 
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":"+config.Port, nil)
 	if err != nil {
-		fmt.Println("Error starting server:", err)
+		log.Fatal("Error starting server:", err)
 	}
 }
