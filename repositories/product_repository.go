@@ -33,3 +33,22 @@ func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 
 	return products, nil
 }
+
+func (repo *ProductRepository) Create(product *models.Product) error {
+	// Validate input
+	if product == nil {
+		return sql.ErrNoRows
+	}
+
+	// Additional validation could be added here
+	// e.g., check if name is not empty, price is positive, etc.
+
+	// Use parameterized query to prevent SQL injection
+	query := "INSERT INTO products (name, price, stock) VALUES ($1, $2, $3) RETURNING id"
+	err := repo.db.QueryRow(query, product.Name, product.Price, product.Stock).Scan(&product.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
