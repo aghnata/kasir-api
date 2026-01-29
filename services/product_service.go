@@ -24,3 +24,7 @@ func (s *ProductService) Create(data *models.Product) error {
 func (s *ProductService) GetByID(id int) (*models.Product, error) {
 	return s.repo.GetByID(id)
 }
+
+func (s *ProductService) Update(data *models.Product) error {
+	return s.repo.Update(data)
+}

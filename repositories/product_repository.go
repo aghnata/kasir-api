@@ -69,3 +69,23 @@ func (repo *ProductRepository) GetByID(id int) (*models.Product, error) {
 
 	return &product, nil
 }
+
+func (repo *ProductRepository) Update(data *models.Product) error {
+	// Implementation for updating a product
+	query := "UPDATE products SET name = $1, price = $2, stock = $3 WHERE id = $4"
+	result, err := repo.db.Exec(query, data.Name, data.Price, data.Stock, data.ID)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return errors.New("produk tidak ditemukan")
+	}
+
+	return nil
+}
