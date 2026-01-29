@@ -89,3 +89,20 @@ func (repo *ProductRepository) Update(data *models.Product) error {
 
 	return nil
 }
+
+func (repo *ProductRepository) Delete(id int) error {
+	// Implementation for deleting a product
+	query := "DELETE FROM products WHERE id = $1"
+	result, err := repo.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return errors.New("produk tidak ditemukan")
+	}
+	return nil
+}
