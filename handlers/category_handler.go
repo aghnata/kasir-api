@@ -1,16 +1,12 @@
 package handlers
 
 import (
-	// "encoding/json"
-	// "kasir-api/models"
 	"encoding/json"
 	"kasir-api/models"
 	"kasir-api/services"
 	"net/http"
 	"strconv"
 	"strings"
-	// "strconv"
-	// "strings"
 )
 
 type CategoryHandler struct {
@@ -27,6 +23,17 @@ func (h *CategoryHandler) HandleCategories(w http.ResponseWriter, r *http.Reques
 		h.GetAll(w, r)
 	case http.MethodPost:
 		h.Create(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func (h *CategoryHandler) HandleCategoryByID(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		h.GetByID(w, r)
+	case http.MethodPut:
+		h.Update(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -74,6 +81,31 @@ func (h *CategoryHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(category)
+}
+
+func (h *CategoryHandler) Update(w http.ResponseWriter, r *http.Request) {
+	idString := strings.TrimPrefix(r.URL.Path, "/api/category/")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Invalid category ID", http.StatusBadRequest)
+		return
+	}
+
+	var category models.Category
+	err = json.NewDecoder(r.Body).Decode(&category)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	category.ID = id
+	err = h.service.Update(&category)
+	if err != nil {
+		http.Error(w, "Failed to update category", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(category)
 }

@@ -56,7 +56,7 @@ func main() {
 
 	//setup routes category
 	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
-	http.HandleFunc("/api/category/", categoryHandler.GetByID)
+	http.HandleFunc("/api/category/", categoryHandler.HandleCategoryByID)
 
 	// /health endpoint
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

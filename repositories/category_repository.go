@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"kasir-api/models"
 	// "errors"
 )
@@ -68,4 +69,33 @@ func (repo *CategoryRepository) GetByID(id int) (*models.Category, error) {
 		return nil, err
 	}
 	return &category, nil
+}
+
+func (repo *CategoryRepository) Update(category *models.Category) error {
+	// Validate input
+	if category == nil {
+		return sql.ErrNoRows
+	}
+
+	// Use parameterized query to prevent SQL injection
+	query := "UPDATE categories SET name = $1, description = $2 WHERE id = $3"
+	result, err := repo.db.Exec(query, category.Name, category.Description, category.ID)
+
+	//debugging purpose
+	// print category.ID, category.Name, category.Description
+	fmt.Printf("DEBUG Update - ID: %d, Name: %s, Description: %s\n", category.ID, category.Name, category.Description)
+
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return errors.New("category tidak ditemukan")
+	}
+	return nil
 }
