@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"kasir-api/models"
 	// "errors"
 )
@@ -52,4 +53,19 @@ func (repo *CategoryRepository) Create(category *models.Category) error {
 	}
 
 	return nil
+}
+
+func (repo *CategoryRepository) GetByID(id int) (*models.Category, error) {
+	query := "SELECT id, name, description FROM categories WHERE id = $1"
+	row := repo.db.QueryRow(query, id)
+	var category models.Category
+	err := row.Scan(&category.ID, &category.Name, &category.Description)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.New("category tidak ditemukan")
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &category, nil
 }

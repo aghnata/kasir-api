@@ -20,3 +20,7 @@ func (s *CategoryService) GetAll() ([]models.Category, error) {
 func (s *CategoryService) Create(data *models.Category) error {
 	return s.repo.Create(data)
 }
+
+func (s *CategoryService) GetByID(id int) (*models.Category, error) {
+	return s.repo.GetByID(id)
+}

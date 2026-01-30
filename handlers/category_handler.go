@@ -7,6 +7,8 @@ import (
 	"kasir-api/models"
 	"kasir-api/services"
 	"net/http"
+	"strconv"
+	"strings"
 	// "strconv"
 	// "strings"
 )
@@ -55,5 +57,23 @@ func (h *CategoryHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(category)
+}
+
+func (h *CategoryHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+	idString := strings.TrimPrefix(r.URL.Path, "/api/category/")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		http.Error(w, "Invalid category ID", http.StatusBadRequest)
+		return
+	}
+
+	category, err := h.service.GetByID(id)
+	if err != nil {
+		http.Error(w, "Category not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(category)
 }
