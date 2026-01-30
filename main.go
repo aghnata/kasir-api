@@ -46,7 +46,7 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
-	//setup routes
+	//setup routes product
 	http.HandleFunc("/api/products", productHandler.HandleProducts)
 	http.HandleFunc("/api/product/", productHandler.HandleProductByID)
 
@@ -54,6 +54,7 @@ func main() {
 	categoryService := services.NewCategoryService(categoryRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
+	//setup routes category
 	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
 
 	// /health endpoint
