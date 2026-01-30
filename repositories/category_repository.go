@@ -99,3 +99,20 @@ func (repo *CategoryRepository) Update(category *models.Category) error {
 	}
 	return nil
 }
+
+func (repo *CategoryRepository) Delete(id int) error {
+	// Implementation for deleting a category
+	query := "DELETE FROM categories WHERE id = $1"
+	result, err := repo.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return errors.New("category tidak ditemukan")
+	}
+	return nil
+}
