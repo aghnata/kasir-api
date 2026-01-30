@@ -50,6 +50,12 @@ func main() {
 	http.HandleFunc("/api/products", productHandler.HandleProducts)
 	http.HandleFunc("/api/product/", productHandler.HandleProductByID)
 
+	categoryRepo := repositories.NewCategoryRepository(db)
+	categoryService := services.NewCategoryService(categoryRepo)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
+
+	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
+
 	// /health endpoint
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -58,6 +64,7 @@ func main() {
 			"message": "API Running",
 		})
 	})
+
 	fmt.Println("Starting server on :" + config.Port)
 
 	err = http.ListenAndServe(":"+config.Port, nil)
