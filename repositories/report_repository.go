@@ -27,7 +27,7 @@ func (repo *ReportRepository) GenerateSalesReport() (interface{}, error) {
 	where t.created_at::date = now()::date
 	group by 
 		p."name" 
-	order by total_revenue desc`
+	order by total_qty desc`
 
 	// args := []any{}
 	// if nameFilter != "" {
